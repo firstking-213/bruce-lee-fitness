@@ -1,7 +1,7 @@
 const CACHE_NAME = 'bruce-fitness-v1';
 const urlsToCache = [
-  '/pwa-fitness/index.html',
-  '/pwa-fitness/manifest.json'
+  '/bruce-lee-fitness/index.html',
+  '/bruce-lee-fitness/manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
