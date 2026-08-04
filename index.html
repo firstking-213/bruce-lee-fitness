@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0f0f12">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="李小龙健身手册">
+<meta name="description" content="李小龙风格健身与饮食执行手册 - 171cm/69kg专属计划">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='24' fill='%23e8c547'/%3E%3Ctext x='96' y='120' font-size='100' text-anchor='middle' fill='%231a1500'%3E🥋%3C/text%3E%3C/svg%3E">
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='24' fill='%23e8c547'/%3E%3Ctext x='96' y='120' font-size='100' text-anchor='middle' fill='%231a1500'%3E%F0%9F%A5%8B%3C/text%3E%3C/svg%3E">
 <title>李小龙风格健身手册</title>
 <style>
   :root {
@@ -961,13 +961,27 @@ function trackDay(day) {
   document.getElementById('progress-fill').style.width = (done / 7 * 100) + '%';
 }
 </script>
-
 <script>
+  // Register Service Worker for PWA
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js')
-      .then((reg) => console.log('SW registered'))
-      .catch((err) => console.log('SW error', err));
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js')
+        .then((registration) => {
+          console.log('SW registered: ', registration.scope);
+        })
+        .catch((error) => {
+          console.log('SW registration failed: ', error);
+        });
+    });
   }
+
+  // Listen for beforeinstallprompt to show custom install button
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    console.log('beforeinstallprompt fired');
+  });
 </script>
 </body>
 </html>
