@@ -1,21 +1,21 @@
 {
   "name": "李小龙健身手册",
   "short_name": "健身手册",
-  "description": "李小龙风格健身与饮食执行手册 - 171cm/69kg专属计划",
-  "start_url": "/pwa-fitness/index.html",
+  "description": "李小龙风格健身与饮食执行手册",
+  "start_url": "/bruce-lee-fitness/index.html",
   "display": "standalone",
   "background_color": "#0f0f12",
   "theme_color": "#0f0f12",
   "orientation": "portrait",
-  "scope": "/pwa-fitness/",
+  "scope": "/bruce-lee-fitness/",
   "icons": [
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='24' fill='%23e8c547'/%3E%3Ctext x='96' y='120' font-size='100' text-anchor='middle' fill='%231a1500'%3E🥋%3C/text%3E%3C/svg%3E",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='24' fill='%23e8c547'/%3E%3Ctext x='96' y='120' font-size='100' text-anchor='middle' fill='%231a1500'%3E%F0%9F%A5%8B%3C/text%3E%3C/svg%3E",
       "sizes": "192x192",
       "type": "image/svg+xml"
     },
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='64' fill='%23e8c547'/%3E%3Ctext x='256' y='320' font-size='280' text-anchor='middle' fill='%231a1500'%3E🥋%3C/text%3E%3C/svg%3E",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='64' fill='%23e8c547'/%3E%3Ctext x='256' y='320' font-size='280' text-anchor='middle' fill='%231a1500'%3E%F0%9F%A5%8B%3C/text%3E%3C/svg%3E",
       "sizes": "512x512",
       "type": "image/svg+xml"
     }
