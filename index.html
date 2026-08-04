@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta name="theme-color" content="#0f0f12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="李小龙健身手册">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='24' fill='%23e8c547'/%3E%3Ctext x='96' y='120' font-size='100' text-anchor='middle' fill='%231a1500'%3E🥋%3C/text%3E%3C/svg%3E">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>李小龙风格健身手册</title>
+<style>
+  :root {
+    --bg: #0f0f12;
+    --surface: #1a1a1f;
+    --surface-raised: #222228;
+    --surface-strong: #2a2a32;
+    --border: #33333d;
+    --text-primary: #f0f0f5;
+    --text-secondary: #a0a0b0;
+    --text-tertiary: #6e6e80;
+    --text-quaternary: #4a4a5a;
+    --accent: #e8c547;
+    --accent-dim: #c9a83a;
+    --danger: #e85d5d;
+    --positive: #5de8a0;
+    --warning: #e8b85d;
+    --info: #5db8e8;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    --font-mono: "SF Mono", "Fira Code", "JetBrains Mono", monospace;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { font-family:var(--font-sans); background:var(--bg); color:var(--text-primary); min-height:100vh; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .container { max-width:900px; margin:0 auto; padding:16px; padding-bottom:40px; }
+  .header { text-align:center; padding:24px 0 16px; border-bottom:1px solid var(--border); margin-bottom:16px; }
+  .header h1 { font-size:24px; font-weight:700; letter-spacing:-0.5px; margin-bottom:4px; }
+  .header h1 span { color:var(--accent); }
+  .header p { color:var(--text-secondary); font-size:13px; }
+  .stats-bar { display:flex; justify-content:center; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .stat-chip { background:var(--surface); border:1px solid var(--border); padding:5px 12px; border-radius:20px; font-size:12px; color:var(--text-secondary); }
+  .stat-chip strong { color:var(--text-primary); font-weight:600; }
+  .tabs { display:flex; gap:2px; border-bottom:1px solid var(--border); margin-bottom:16px; overflow-x:auto; scrollbar-width:none; }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tab { padding:10px 14px; cursor:pointer; font-size:13px; font-weight:600; color:var(--text-tertiary); background:none; border:none; border-bottom:2px solid transparent; transition:all 0.2s; white-space:nowrap; display:flex; align-items:center; gap:5px; }
+  .tab:hover { color:var(--text-secondary); }
+  .tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .section { display:none; animation:fadeIn 0.3s ease; }
+  .section.active { display:block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  .day-selector { display:flex; align-items:center; gap:10px; margin-bottom:16px; padding:12px 16px; background:var(--surface); border:1px solid var(--border); border-radius:10px; }
+  .day-selector label { font-size:13px; color:var(--text-tertiary); white-space:nowrap; }
+  .day-selector select { flex:1; background:var(--surface-raised); border:1px solid var(--border); color:var(--text-primary); padding:10px 14px; border-radius:8px; font-size:14px; font-weight:600; font-family:inherit; outline:none; cursor:pointer; appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236e6e80' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:32px; }
+  .day-selector select:focus { border-color:var(--accent); }
+  .today-badge { font-size:11px; padding:3px 10px; border-radius:6px; background:rgba(232,197,71,0.15); color:var(--accent); font-weight:600; white-space:nowrap; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:12px; margin-bottom:12px; overflow:hidden; }
+  .card-header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; cursor:pointer; background:var(--surface); transition:background 0.2s; }
+  .card-header:hover { background:var(--surface-raised); }
+  .card-title { display:flex; align-items:center; gap:10px; font-size:15px; font-weight:600; }
+  .card-tag { font-size:11px; padding:3px 10px; border-radius:6px; font-weight:600; }
+  .tag-push { background:rgba(232,184,93,0.15); color:var(--warning); }
+  .tag-pull { background:rgba(93,184,232,0.15); color:var(--info); }
+  .tag-leg { background:rgba(232,93,93,0.15); color:var(--danger); }
+  .tag-shoulder { background:rgba(93,232,160,0.15); color:var(--positive); }
+  .tag-tennis { background:rgba(93,184,232,0.12); color:#7ec8f0; }
+  .tag-rest { background:rgba(110,110,128,0.15); color:var(--text-tertiary); }
+  .tag-fullbody { background:rgba(232,197,71,0.12); color:var(--accent); }
+  .chevron { transition:transform 0.2s; color:var(--text-tertiary); }
+  .chevron.rotated { transform:rotate(180deg); }
+  .card-body { max-height:0; overflow:hidden; transition:max-height 0.4s ease; }
+  .card-body.open { max-height:4000px; }
+  .card-inner { padding:0 18px 18px; }
+  .ex-row { display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
+  .ex-row:last-child { border-bottom:none; }
+  .ex-check { width:22px; height:22px; border-radius:5px; border:2px solid var(--border); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; transition:all 0.2s; }
+  .ex-check:hover { border-color:var(--accent); }
+  .ex-check.done { background:var(--accent); border-color:var(--accent); }
+  .ex-check.done svg { display:block; }
+  .ex-check svg { display:none; width:14px; height:14px; }
+  .ex-info { flex:1; min-width:0; }
+  .ex-name { font-size:14px; font-weight:600; margin-bottom:3px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .ex-name.done { text-decoration:line-through; color:var(--text-quaternary); }
+  .ex-detail { font-size:12px; color:var(--text-secondary); line-height:1.6; }
+  .ex-note { font-size:11px; color:var(--text-tertiary); margin-top:4px; padding:6px 10px; background:var(--bg); border-radius:6px; border-left:3px solid var(--accent); }
+  .ex-note.red { border-left-color:var(--danger); }
+  .ex-note.blue { border-left-color:var(--info); }
+  .badge { font-size:10px; padding:2px 6px; border-radius:4px; background:var(--surface-strong); color:var(--text-tertiary); font-weight:500; }
+  .badge-warmup { background:rgba(232,184,93,0.12); color:var(--warning); }
+  .badge-core { background:rgba(93,232,160,0.12); color:var(--positive); }
+  .timer-panel { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; text-align:center; margin-bottom:16px; }
+  .timer-display { font-size:56px; font-weight:700; font-family:var(--font-mono); color:var(--accent); line-height:1; margin-bottom:8px; letter-spacing:2px; }
+  .timer-label { font-size:13px; color:var(--text-tertiary); margin-bottom:20px; }
+  .timer-btns { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+  .tbtn { padding:10px 20px; border-radius:8px; border:none; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; font-family:inherit; }
+  .tbtn-primary { background:var(--accent); color:#1a1500; }
+  .tbtn-primary:hover { background:var(--accent-dim); }
+  .tbtn-secondary { background:var(--surface-raised); color:var(--text-primary); border:1px solid var(--border); }
+  .tbtn-secondary:hover { background:var(--surface-strong); }
+  .tbtn-danger { background:rgba(232,93,93,0.15); color:var(--danger); border:1px solid rgba(232,93,93,0.3); }
+  .tbtn-danger:hover { background:rgba(232,93,93,0.25); }
+  .meal-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px 18px; margin-bottom:12px; }
+  .meal-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .meal-icon { width:36px; height:36px; border-radius:8px; background:var(--surface-raised); display:flex; align-items:center; justify-content:center; font-size:18px; }
+  .meal-title { font-size:15px; font-weight:600; }
+  .meal-time { font-size:12px; color:var(--text-tertiary); }
+  .meal-items { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+  .meal-item { display:flex; align-items:center; gap:6px; padding:6px 12px; border-radius:6px; background:var(--surface-raised); font-size:13px; color:var(--text-secondary); }
+  .meal-macros { display:flex; gap:16px; font-size:12px; color:var(--text-tertiary); padding-top:10px; border-top:1px solid var(--border); }
+  .macro-dot { width:6px; height:6px; border-radius:50%; display:inline-block; margin-right:4px; }
+  .progress-panel { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; margin-bottom:16px; }
+  .progress-bar-bg { height:8px; border-radius:4px; background:var(--bg); overflow:hidden; margin:10px 0; }
+  .progress-bar-fill { height:100%; border-radius:4px; background:var(--accent); transition:width 0.5s ease; }
+  .progress-text { font-size:13px; color:var(--text-secondary); text-align:center; }
+  table { width:100%; border-collapse:collapse; font-size:13px; margin:12px 0; }
+  th { text-align:left; padding:10px 12px; background:var(--surface-raised); color:var(--text-secondary); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid var(--border); }
+  td { padding:10px 12px; border-bottom:1px solid var(--border); color:var(--text-secondary); vertical-align:top; }
+  tr:hover td { background:rgba(255,255,255,0.02); }
+  .tip-box { padding:12px 16px; border-radius:8px; background:rgba(232,184,93,0.08); border:1px solid rgba(232,184,93,0.2); margin-bottom:16px; font-size:13px; color:var(--text-secondary); display:flex; align-items:flex-start; gap:10px; }
+  .tip-box svg { flex-shrink:0; margin-top:2px; }
+  .section-title { font-size:12px; font-weight:600; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:1px; margin:24px 0 12px; }
+  .mindset { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; text-align:center; margin-top:24px; }
+  .mindset p { font-size:15px; color:var(--text-secondary); font-style:italic; line-height:1.8; }
+  .mindset .author { margin-top:10px; font-size:12px; color:var(--text-quaternary); }
+  .rest-day { text-align:center; padding:40px 20px; }
+  .rest-day .icon { font-size:48px; margin-bottom:12px; }
+  .rest-day h3 { font-size:18px; margin-bottom:8px; }
+  .rest-day p { color:var(--text-secondary); font-size:14px; line-height:1.7; }
+  .super-tip { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-bottom:16px; font-size:13px; color:var(--text-secondary); line-height:1.7; border-left:3px solid var(--accent); }
+  .super-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .super-table th { text-align:left; padding:10px 12px; background:var(--surface-raised); color:var(--text-secondary); font-weight:600; font-size:12px; border-bottom:1px solid var(--border); }
+  .super-table td { padding:10px 12px; border-bottom:1px solid var(--border); color:var(--text-secondary); vertical-align:top; }
+  .super-table tr:hover td { background:rgba(255,255,255,0.02); }
+  .super-table .time-col { color:var(--accent); font-weight:500; white-space:nowrap; font-size:12px; }
+  .super-table .action-col { font-weight:500; color:var(--text-primary); }
+  .super-table .sets-col { color:var(--text-tertiary); font-size:12px; }
+  .super-table .note-col { color:var(--text-quaternary); font-size:12px; }
+  @media (max-width:600px) {
+    .container { padding:12px; padding-bottom:32px; }
+    .header h1 { font-size:20px; }
+    .timer-display { font-size:42px; }
+    .tabs { gap:0; }
+    .tab { padding:8px 10px; font-size:12px; }
+    table { font-size:12px; }
+    th, td { padding:8px; }
+    .day-selector { flex-wrap:wrap; }
+    .day-selector select { min-width:140px; }
+    .super-table .time-col, .super-table .sets-col, .super-table .note-col { font-size:11px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>李小龙风格 <span>健身手册</span></h1>
+    <p>171cm / 69kg / 低体脂精瘦 / 功能性力量</p>
+    <div class="stats-bar">
+      <div class="stat-chip">身高 <strong>171cm</strong></div>
+      <div class="stat-chip">体重 <strong>69kg</strong></div>
+      <div class="stat-chip">BMI <strong>23.6</strong></div>
+      <div class="stat-chip">目标体脂 <strong>10-12%</strong></div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('schedule')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      每日课表
+    </button>
+    <button class="tab" onclick="switchTab('diet')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 6v6l4 2"/></svg>
+      饮食计划
+    </button>
+    <button class="tab" onclick="switchTab('timer')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      计时器
+    </button>
+    <button class="tab" onclick="switchTab('track')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      进度追踪
+    </button>
+    <button class="tab" onclick="switchTab('super')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      一周超级训练组
+    </button>
+  </div>
+
+  <div class="section active" id="sec-schedule">
+    <div class="day-selector">
+      <label>选择日期</label>
+      <select id="daySelect" onchange="showDay(this.value)">
+        <option value="0">周一 · 推日 + 核心前侧</option>
+        <option value="1">周二 · 网球日</option>
+        <option value="2">周三 · 拉日 + 肩袖</option>
+        <option value="3">周四 · 腿 + 爆发力</option>
+        <option value="4">周五 · 肩 + 前臂 + 核心抗旋</option>
+        <option value="5">周六 · 全身流动 / 网球</option>
+        <option value="6">周日 · 完全休息</option>
+      </select>
+      <span class="today-badge" id="todayBadge">今天</span>
+    </div>
+    <div id="dayContent"></div>
+  </div>
+
+  <div class="section" id="sec-diet">
+    <div class="tip-box">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      <div>每日总热量约2710kcal | 蛋白质150g | 碳水340g | 脂肪70g。网球日碳水额外增加50g。</div>
+    </div>
+    <div class="section-title">宏量营养素目标</div>
+    <table>
+      <tr><th>营养素</th><th>每日目标</th><th>热量占比</th><th>备注</th></tr>
+      <tr><td>蛋白质</td><td><strong>150g</strong>（2.2g/kg）</td><td>~22%</td><td>肌肉修复与合成</td></tr>
+      <tr><td>碳水化合物</td><td><strong>340g</strong></td><td>~50%</td><td>训练燃料，网球日+50g</td></tr>
+      <tr><td>脂肪</td><td><strong>70g</strong></td><td>~23%</td><td>激素合成，不低于60g</td></tr>
+      <tr><td>总热量</td><td><strong>~2,710 kcal</strong></td><td>—</td><td>每周根据体重±100kcal调整</td></tr>
+    </table>
+    <div class="section-title">一日三餐 + 加餐</div>
+    <div class="meal-card">
+      <div class="meal-header">
+        <div class="meal-icon">🌅</div>
+        <div><div class="meal-title">早餐 07:30 — 高蛋白启动餐</div><div class="meal-time">起床后30分钟内进食</div></div>
+      </div>
+      <div class="meal-items">
+        <div class="meal-item">🥚 全蛋2个（~100g）</div>
+        <div class="meal-item">🥚 鸡蛋白3个（~100g）</div>
+        <div class="meal-item">🌾 燕麦片60g（干重）</div>
+        <div class="meal-item">🥛 纯牛奶250ml</div>
+        <div class="meal-item">🥜 混合坚果15g</div>
+      </div>
+      <div class="meal-macros">
+        <span><span class="macro-dot" style="background:var(--accent)"></span>蛋白质 ~37g</span>
+        <span><span class="macro-dot" style="background:var(--positive)"></span>碳水 ~56g</span>
+        <span><span class="macro-dot" style="background:var(--info)"></span>脂肪 ~29g</span>
+      </div>
+      <div class="ex-note" style="margin-top:10px;">做法：燕麦用牛奶微波炉加热2分钟，鸡蛋水煮或少量油煎。</div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header">
+        <div class="meal-icon">🍱</div>
+        <div><div class="meal-title">午餐 12:00 — 能量主力餐</div><div class="meal-time">训练日需增加碳水</div></div>
+      </div>
+      <div class="meal-items">
+        <div class="meal-item">🍚 糙米饭150g（生重）</div>
+        <div class="meal-item">🍗 鸡胸肉150g（生重）</div>
+        <div class="meal-item">🥦 西兰花/菠菜200g</div>
+        <div class="meal-item">🫒 橄榄油5g（炒菜用）</div>
+      </div>
+      <div class="meal-macros">
+        <span><span class="macro-dot" style="background:var(--accent)"></span>蛋白质 ~43g</span>
+        <span><span class="macro-dot" style="background:var(--positive)"></span>碳水 ~123g</span>
+        <span><span class="macro-dot" style="background:var(--info)"></span>脂肪 ~9g</span>
+      </div>
+      <div class="ex-note" style="margin-top:10px;">做法：鸡胸肉切片少油煎或水煮蘸酱油；糙米提前一晚浸泡。</div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header">
+        <div class="meal-icon">🥤</div>
+        <div><div class="meal-title">训练前加餐 15:30 — 快速能量</div><div class="meal-time">训练前60分钟</div></div>
+      </div>
+      <div class="meal-items">
+        <div class="meal-item">🍌 香蕉1根（~120g）</div>
+        <div class="meal-item">🍞 全麦面包2片（~60g）</div>
+        <div class="meal-item">🥜 花生酱10g（可选）</div>
+      </div>
+      <div class="meal-macros">
+        <span><span class="macro-dot" style="background:var(--accent)"></span>蛋白质 ~7g</span>
+        <span><span class="macro-dot" style="background:var(--positive)"></span>碳水 ~54g</span>
+        <span><span class="macro-dot" style="background:var(--info)"></span>脂肪 ~6g</span>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header">
+        <div class="meal-icon">🥩</div>
+        <div><div class="meal-title">晚餐 20:00 — 轻量修复餐</div><div class="meal-time">训练后2小时内（黄金窗口）</div></div>
+      </div>
+      <div class="meal-items">
+        <div class="meal-item">🐟 瘦牛肉120g 或 鲈鱼150g</div>
+        <div class="meal-item">🍠 红薯200g（生重）</div>
+        <div class="meal-item">🧈 北豆腐100g</div>
+        <div class="meal-item">🥗 混合蔬菜（不限量）</div>
+        <div class="meal-item">🫒 橄榄油3g</div>
+      </div>
+      <div class="meal-macros">
+        <span><span class="macro-dot" style="background:var(--accent)"></span>蛋白质 ~41g</span>
+        <span><span class="macro-dot" style="background:var(--positive)"></span>碳水 ~53g</span>
+        <span><span class="macro-dot" style="background:var(--info)"></span>脂肪 ~16g</span>
+      </div>
+      <div class="ex-note" style="margin-top:10px;">做法：牛肉切片快炒，红薯蒸或烤，豆腐凉拌或煮汤。</div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header">
+        <div class="meal-icon">🌙</div>
+        <div><div class="meal-title">睡前（可选）22:00 — 缓释蛋白</div><div class="meal-time">防止夜间肌肉分解</div></div>
+      </div>
+      <div class="meal-items">
+        <div class="meal-item">🥛 脱脂牛奶200ml 或 无糖希腊酸奶100g</div>
+      </div>
+      <div class="meal-macros">
+        <span><span class="macro-dot" style="background:var(--accent)"></span>蛋白质 ~7-10g</span>
+      </div>
+    </div>
+    <div class="section-title">全天汇总</div>
+    <table>
+      <tr><th>餐次</th><th>蛋白质</th><th>碳水</th><th>脂肪</th><th>热量</th></tr>
+      <tr><td>早餐</td><td>37g</td><td>56g</td><td>29g</td><td>~605 kcal</td></tr>
+      <tr><td>午餐</td><td>43g</td><td>123g</td><td>9g</td><td>~745 kcal</td></tr>
+      <tr><td>加餐</td><td>7g</td><td>54g</td><td>6g</td><td>~310 kcal</td></tr>
+      <tr><td>晚餐</td><td>41g</td><td>53g</td><td>16g</td><td>~480 kcal</td></tr>
+      <tr><td>睡前</td><td>7g</td><td>10g</td><td>0g</td><td>~68 kcal</td></tr>
+      <tr style="background:var(--surface-raised);"><td><strong>合计</strong></td><td><strong>~135g</strong></td><td><strong>~296g</strong></td><td><strong>~60g</strong></td><td><strong>~2,208 kcal</strong></td></tr>
+    </table>
+    <div class="ex-note" style="margin-top:8px;">缺口部分通过烹饪油脂和隐性营养补足，实际摄入约<strong>2,600-2,700 kcal</strong>。网球日额外增加糙米饭50g或香蕉1根。</div>
+  </div>
+
+  <div class="section" id="sec-timer">
+    <div class="timer-panel">
+      <div class="timer-display" id="rest-timer">00:00</div>
+      <div class="timer-label" id="rest-label">组间休息计时器</div>
+      <div class="timer-btns">
+        <button class="tbtn tbtn-primary" onclick="startRestTimer(45)">核心 45秒</button>
+        <button class="tbtn tbtn-primary" onclick="startRestTimer(60)">力量 60秒</button>
+        <button class="tbtn tbtn-primary" onclick="startRestTimer(90)">大重量 90秒</button>
+        <button class="tbtn tbtn-primary" onclick="startRestTimer(120)">爆发力 2分钟</button>
+        <button class="tbtn tbtn-danger" onclick="stopRestTimer()">停止</button>
+      </div>
+    </div>
+    <div class="timer-panel">
+      <div class="timer-display" id="sw-timer" style="color:var(--positive);">00:00</div>
+      <div class="timer-label">训练总时长</div>
+      <div class="timer-btns">
+        <button class="tbtn tbtn-primary" onclick="startStopwatch()">开始训练</button>
+        <button class="tbtn tbtn-secondary" onclick="stopStopwatch()">暂停</button>
+        <button class="tbtn tbtn-danger" onclick="resetStopwatch()">重置</button>
+      </div>
+    </div>
+    <div class="tip-box">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      <div>组间休息60-90秒适合增肌，3分钟适合大重量恢复。训练总时长建议控制在60分钟内。</div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-track">
+    <div class="progress-panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <span style="font-size:14px; font-weight:600;">本周训练完成度</span>
+        <span style="font-size:13px; color:var(--text-tertiary);" id="progress-text">0 / 7 天</span>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="progress-text" style="margin-top:6px;">点击下方按钮记录每日完成情况</div>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; margin-bottom:20px;">
+      <button class="day-track" id="day-mon" onclick="trackDay('mon')" style="padding:12px 4px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-secondary); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">周一<br><span style="font-size:10px; color:var(--text-quaternary);">推日</span></button>
+      <button class="day-track" id="day-tue" onclick="trackDay('tue')" style="padding:12px 4px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-secondary); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">周二<br><span style="font-size:10px; color:var(--text-quaternary);">网球</span></button>
+      <button class="day-track" id="day-wed" onclick="trackDay('wed')" style="padding:12px 4px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-secondary); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">周三<br><span style="font-size:10px; color:var(--text-quaternary);">拉日</span></button>
+      <button class="day-track" id="day-thu" onclick="trackDay('thu')" style="padding:12px 4px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-secondary); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">周四<br><span style="font-size:10px; color:var(--text-quaternary);">腿日</span></button>
+      <button class="day-track" id="day-fri" onclick="trackDay('fri')" style="padding:12px 4px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-secondary); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">周五<br><span style="font-size:10px; color:var(--text-quaternary);">肩臂</span></button>
+      <button class="day-track" id="day-sat" onclick="trackDay('sat')" style="padding:12px 4px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-secondary); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">周六<br><span style="font-size:10px; color:var(--text-quaternary);">流动</span></button>
+      <button class="day-track" id="day-sun" onclick="trackDay('sun')" style="padding:12px 4px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-secondary); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">周日<br><span style="font-size:10px; color:var(--text-quaternary);">休息</span></button>
+    </div>
+    <div class="section-title">每周测量指南（周日晨起，排便后、空腹）</div>
+    <table>
+      <tr><th>测量项目</th><th>方法</th><th>为什么测它</th></tr>
+      <tr><td>体重</td><td>家用体重秤，固定时间</td><td>观察趋势，不要看单日波动</td></tr>
+      <tr><td>腰围</td><td>肚脐水平，呼气末绕腹一周</td><td>比体重更能反映脂肪变化</td></tr>
+      <tr><td>臂围</td><td>右臂屈臂，肱二头肌最高点</td><td>肌肉量的直接指标</td></tr>
+      <tr><td>大腿围</td><td>大腿中段，站立放松</td><td>下肢肌肉发展</td></tr>
+      <tr><td>拍照</td><td>正面、侧面、背面，同光线同位置</td><td>最诚实的进度记录</td></tr>
+    </table>
+    <div class="section-title">每2周力量测试</div>
+    <table>
+      <tr><th>测试项目</th><th>方法</th><th>标准</th></tr>
+      <tr><td>引体向上</td><td>正握，不借力，下巴过杠</td><td>记录最大次数</td></tr>
+      <tr><td>俯卧撑</td><td>标准，2分钟内</td><td>记录最大次数</td></tr>
+      <tr><td>平板支撑</td><td>标准姿势</td><td>记录最长时间</td></tr>
+    </table>
+    <div class="section-title">何时增加重量/难度？</div>
+    <table>
+      <tr><th>信号</th><th>操作</th></tr>
+      <tr><td>目标次数能轻松完成，且还能多做2次以上</td><td>下一周增加重量：哑铃+2.5kg/侧，杠铃+5kg</td></tr>
+      <tr><td>自重动作能做超过目标次数5次以上</td><td>增加难度：标准→窄距→击掌→负重</td></tr>
+      <tr><td>连续2周体重不变，腰围减少</td><td>很好，肌肉在替换脂肪，不要增加热量</td></tr>
+      <tr><td>连续2周体重不变，腰围也不变</td><td>总热量+100kcal（加25g碳水），观察一周</td></tr>
+      <tr><td>体重下降超过0.5kg/周，且力量下降</td><td>吃少了，总热量+150kcal（加30g碳水+5g脂肪）</td></tr>
+    </table>
+    <div class="mindset">
+      <p>"不要追求训练时的泵感，要追求训练后的恢复。<br>李小龙的肌肉是在休息时长出来的，不是在健身房里——<br>你今天的训练质量，取决于你昨晚睡了几个小时。"</p>
+      <div class="author">— 本周关键心态提示</div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-super">
+    <div class="day-selector">
+      <label>选择日期</label>
+      <select id="superSelect" onchange="showSuperDay(this.value)">
+        <option value="0">周一 · 胸 + 三头 + 核心（爆发力日）</option>
+        <option value="1">周二 · 背 + 二头 + 后肩 + 有氧</option>
+        <option value="2">周三 · 腿 + 臀 + 爆发力HIIT</option>
+        <option value="3">周四 · 肩 + 前臂 + 核心 + 有氧</option>
+        <option value="4">周五 · 胸 + 背超级组 + 搏击风格有氧</option>
+        <option value="5">周六 · 全身功能性 + 柔韧 + 有氧</option>
+        <option value="6">周日 · 完全休息 或 轻度活动</option>
+      </select>
+      <span class="today-badge" id="superTodayBadge">今天</span>
+    </div>
+    <div id="superContent"></div>
+  </div>
+<script>
+const superDays = [
+  {
+    name: '周一：胸 + 三头 + 核心（爆发力日）',
+    tip: `李小龙秘诀：他每天坚持做几百个俯卧撑，你可以早晨起床后做50-100个俯卧撑作为"晨练唤醒"。`,
+    items: [
+      { time: `时间`, action: `动作`, sets: `组数×次数`, note: `备注` },
+      { time: `18:30-19:00`, action: `热身：跳绳5分钟 + 动态拉伸`, sets: `—`, note: `激活全身` },
+      { time: `19:00-19:20`, action: `俯卧撑（宽距/窄距/击掌）`, sets: `4组×15-20次`, note: `李小龙最爱` },
+      { time: `19:20-19:35`, action: `哑铃卧推`, sets: `4组×8-12次`, note: `控制下放2秒` },
+      { time: `19:35-19:50`, action: `上斜哑铃飞鸟`, sets: `3组×12-15次`, note: `感受胸肌拉伸` },
+      { time: `19:50-20:00`, action: `双杠臂屈伸`, sets: `3组×力竭`, note: `胸和三头一起练` },
+      { time: `20:00-20:10`, action: `绳索下压（三头）`, sets: `3组×12-15次`, note: `手臂线条` },
+      { time: `20:10-20:25`, action: `核心轰炸：悬垂举腿`, sets: `4组×15次`, note: `李小龙标志性动作` },
+      { time: `平板支撑`, action: `3组×60秒`, sets: `核心稳定`, note: `` },
+      { time: `俄罗斯转体`, action: `3组×30次`, sets: `腹斜肌`, note: `` },
+      { time: `20:25-20:35`, action: `拉伸放松`, sets: `—`, note: `静态拉伸5分钟` },
+    ]
+  },
+  {
+    name: '周二：背 + 二头 + 后肩 + 有氧',
+    tip: `李小龙名言："我不怕练过一万种腿法的人，我怕把一种腿法练一万次的人。"引体向上就是你的"一万次"。`,
+    items: [
+      { time: `时间`, action: `动作`, sets: `组数×次数`, note: `备注` },
+      { time: `18:30-19:00`, action: `热身：划船机5分钟`, sets: `—`, note: `激活背部` },
+      { time: `19:00-19:20`, action: `引体向上（正握/反握）`, sets: `5组×力竭`, note: `李小龙背阔肌的王牌动作` },
+      { time: `19:20-19:35`, action: `杠铃划船`, sets: `4组×8-12次`, note: `上背厚度` },
+      { time: `19:35-19:50`, action: `单臂哑铃划船`, sets: `3组×10-12次`, note: `每侧` },
+      { time: `19:50-20:00`, action: `面拉（后束）`, sets: `3组×15次`, note: `肩后束，改善体态` },
+      { time: `20:00-20:10`, action: `杠铃弯举`, sets: `4组×10-12次`, note: `二头肌峰` },
+      { time: `20:10-20:20`, action: `锤式弯举`, sets: `3组×12次`, note: `前臂（李小龙前臂很粗）` },
+      { time: `20:20-20:35`, action: `核心：龙旗（Dragon Flag）`, sets: `3组×5-10次`, note: `李小龙招牌动作！` },
+      { time: `山羊挺身`, action: `3组×15次`, sets: `下背`, note: `` },
+      { time: `20:35-20:50`, action: `有氧：跑步机斜坡快走/慢跑`, sets: `15分钟`, note: `心率130-150` },
+      { time: `20:50-21:00`, action: `拉伸`, sets: `—`, note: `背部拉伸` },
+    ]
+  },
+  {
+    name: '周三：腿 + 臀 + 爆发力HIIT',
+    tip: ``,
+    items: [
+      { time: `时间`, action: `动作`, sets: `组数×次数`, note: `备注` },
+      { time: `18:30-19:00`, action: `热身：动态拉伸 + 空蹲20次`, sets: `—`, note: `激活髋关节` },
+      { time: `19:00-19:20`, action: `杠铃深蹲`, sets: `5组×6-10次`, note: `力量之王` },
+      { time: `19:20-19:35`, action: `罗马尼亚硬拉`, sets: `4组×8-12次`, note: `腘绳肌+臀` },
+      { time: `19:35-19:45`, action: `保加利亚分腿蹲`, sets: `3组×10次/腿`, note: `单腿力量` },
+      { time: `19:45-19:55`, action: `腿弯举`, sets: `3组×12-15次`, note: `腘绳肌` },
+      { time: `19:55-20:05`, action: `提踵（站姿/坐姿）`, sets: `4组×15-20次`, note: `小腿线条` },
+      { time: ``, action: `20:05-20:25`, sets: `HIIT爆发力训练：`, note: `` },
+      { time: `波比跳`, action: `30秒`, sets: `休息30秒`, note: `` },
+      { time: `深蹲跳`, action: `30秒`, sets: `休息30秒`, note: `` },
+      { time: `高抬腿`, action: `30秒`, sets: `休息30秒`, note: `` },
+      { time: `登山跑`, action: `30秒`, sets: `休息30秒`, note: `` },
+      { time: `20:25-20:35`, action: `拉伸放松`, sets: `—`, note: `腿部拉伸` },
+    ]
+  },
+  {
+    name: '周四：肩 + 前臂 + 核心 + 有氧',
+    tip: ``,
+    items: [
+      { time: `时间`, action: `动作`, sets: `组数×次数`, note: `备注` },
+      { time: `18:30-19:00`, action: `热身：肩环绕 + 轻重量侧平举`, sets: `—`, note: `激活肩袖` },
+      { time: `19:00-19:15`, action: `哑铃推举`, sets: `4组×8-12次`, note: `肩前中束` },
+      { time: `19:15-19:30`, action: `哑铃侧平举`, sets: `4组×12-15次`, note: `三角肌中束（宽肩）` },
+      { time: `19:30-19:40`, action: `俯身飞鸟`, sets: `3组×15次`, note: `肩后束` },
+      { time: `19:40-19:50`, action: `杠铃/哑铃耸肩`, sets: `3组×12-15次`, note: `斜方肌` },
+      { time: ``, action: `19:50-20:05`, sets: `前臂专项（李小龙极重视）：`, note: `` },
+      { time: `腕弯举`, action: `3组×15次`, sets: `正握+反握`, note: `` },
+      { time: `农夫行走`, action: `3组×40秒`, sets: `握力`, note: `` },
+      { time: `毛巾引体/悬垂`, action: `2组×力竭`, sets: `握力`, note: `` },
+      { time: `20:05-20:20`, action: `核心：卷腹`, sets: `4组×20次`, note: `` },
+      { time: ``, action: `仰卧抬腿`, sets: `3组×15次`, note: `` },
+      { time: ``, action: `侧平板支撑`, sets: `3组×45秒/侧`, note: `` },
+      { time: `20:20-20:35`, action: `跑步机/椭圆机`, sets: `15分钟`, note: `低强度有氧` },
+      { time: `20:35-20:45`, action: `拉伸`, sets: `—`, note: `` },
+    ]
+  },
+  {
+    name: '周五：胸 + 背超级组 + 搏击风格有氧',
+    tip: ``,
+    items: [
+      { time: `时间`, action: `动作`, sets: `组数×次数`, note: `备注` },
+      { time: `18:30-19:00`, action: `热身：空击5分钟`, sets: `—`, note: `模仿拳击动作` },
+      { time: `19:00-19:30`, action: `超级组A：`, sets: ``, note: `两个动作连续做，无休息` },
+      { time: ``, action: `俯卧撑`, sets: `4组×15次`, note: `` },
+      { time: ``, action: `引体向上`, sets: `4组×力竭`, note: `` },
+      { time: ``, action: `19:30-19:55`, sets: `超级组B：`, note: `` },
+      { time: ``, action: `哑铃卧推`, sets: `3组×10次`, note: `` },
+      { time: ``, action: `单臂哑铃划船`, sets: `3组×10次/侧`, note: `` },
+      { time: `19:55-20:10`, action: `双杠臂屈伸`, sets: `3组×力竭`, note: `` },
+      { time: ``, action: `20:10-20:30`, sets: `搏击风格HIIT：`, note: `` },
+      { time: `空击组合拳`, action: `1分钟`, sets: `休息30秒`, note: `` },
+      { time: `踢腿（左右交替）`, action: `1分钟`, sets: `休息30秒`, note: `` },
+      { time: `深蹲出拳`, action: `1分钟`, sets: `休息30秒`, note: `` },
+      { time: `20:30-20:40`, action: `悬垂举腿`, sets: `3组×15次`, note: `` },
+      { time: `20:40-20:50`, action: `拉伸`, sets: `—`, note: `` },
+    ]
+  },
+  {
+    name: '周六：全身功能性 + 柔韧 + 有氧',
+    tip: ``,
+    items: [
+      { time: `时间`, action: `动作`, sets: `组数×次数`, note: `备注` },
+      { time: `09:00-09:20`, action: `晨间唤醒：俯卧撑100个`, sets: `分组完成`, note: `李小龙习惯` },
+      { time: `16:00-16:20`, action: `热身`, sets: `—`, note: `` },
+      { time: ``, action: `16:20-16:50`, sets: `壶铃/哑铃复合动作：`, note: `` },
+      { time: `壶铃摆动`, action: `3组×15次`, sets: `爆发力`, note: `` },
+      { time: `土耳其起立`, action: `3组×5次/侧`, sets: `全身协调`, note: `` },
+      { time: `俯卧撑转体`, action: `3组×10次`, sets: `核心+胸`, note: `` },
+      { time: ``, action: `16:50-17:10`, sets: `柔韧训练（李小龙极重视）：`, note: `` },
+      { time: `前屈拉伸`, action: `2分钟`, sets: `腿后侧`, note: `` },
+      { time: `开胯拉伸`, action: `2分钟/侧`, sets: `髋关节`, note: `` },
+      { time: ``, action: `肩部拉伸`, sets: `2分钟`, note: `` },
+      { time: ``, action: `脊柱扭转`, sets: `2分钟`, note: `` },
+      { time: `17:10-17:30`, action: `慢跑/快走`, sets: `20分钟`, note: `心率120-140` },
+      { time: `17:30-17:40`, action: `冥想/呼吸训练`, sets: `10分钟`, note: `李小龙练咏春的呼吸法` },
+    ]
+  },
+  {
+    name: '周日：完全休息 或 轻度活动',
+    tip: ``,
+    items: [
+      { time: ``, action: `早晨：散步30分钟`, sets: ``, note: `` },
+      { time: ``, action: `可做轻度拉伸、瑜伽`, sets: ``, note: `` },
+      { time: ``, action: `保证8小时睡眠`, sets: ``, note: `` },
+      { time: ``, action: `绝不训练，肌肉在休息时生长`, sets: ``, note: `` },
+    ]
+  },
+];
+
+const dayData = [
+  {
+    name: "周一", tag: "推日 + 核心前侧", tagClass: "tag-push",
+    sections: [
+      {
+        title: "热身（10分钟）",
+        items: [
+          { name: "跳绳", badge: "warmup", detail: "3分钟，心率提升至120+", note: "" },
+          { name: "肩环绕（前后各）", badge: "warmup", detail: "15次，润滑肩关节", note: "" },
+          { name: "胸椎旋转（四足位）", badge: "warmup", detail: "每侧10次，打开胸椎活动度", note: "" },
+          { name: "世界最伟大拉伸", badge: "warmup", detail: "每侧3次，髋+胸椎+肩一次打开", note: "" },
+          { name: "慢速俯卧撑", badge: "warmup", detail: "2组 × 10次，激活胸肩三头", note: "退阶：跪姿俯卧撑 2组×12次", noteRed: true }
+        ]
+      },
+      {
+        title: "正式组（40分钟）",
+        items: [
+          { name: "A1 哑铃/杠铃卧推", detail: "单侧12-15kg（约65% 1RM）| 4组 × 8次 | 组间休息 90秒", note: "下放2秒，底部轻触胸，无反弹，推起1秒", noteRed: true, redNote: "退阶：标准俯卧撑 4组×12次" },
+          { name: "A2 上斜哑铃推举", detail: "单侧10-12kg | 3组 × 10次 | 组间休息 75秒", note: "", noteRed: true, redNote: "退阶：上斜俯卧撑（脚垫高）3组×12次" },
+          { name: "B1 双杠臂屈伸", detail: "自重 | 3组 × 力竭 | 组间休息 90秒", note: "身体前倾练胸，直立练三头", noteRed: true, redNote: "退阶：板凳臂屈伸（脚着地）3组×12次" },
+          { name: "B2 绳索/弹力带三头下压", detail: "选择能做12次的重量 | 3组 × 12次 | 组间休息 60秒", note: "", noteRed: true, redNote: "退阶：窄距俯卧撑 3组×10次" },
+          { name: "C1 击掌俯卧撑", detail: "自重 | 3组 × 8次 | 组间休息 2分钟", note: "落地时手肘微屈缓冲，保护手腕", noteRed: true, redNote: "退阶：标准俯卧撑 3组×15次（不击掌）" },
+          { name: "D1 悬垂举腿", badge: "core", detail: "自重 | 4组 × 12次 | 组间休息 60秒", note: "李小龙标志性动作。不要摆动借力，用腹肌力量把腿抬到至少水平", noteRed: true, redNote: "退阶：屈膝举腿 4组×15次 → 仰卧举腿" },
+          { name: "D2 平板支撑", badge: "core", detail: "自重 | 3组 × 60秒 | 组间休息 45秒", note: "", noteRed: true, redNote: "退阶：跪姿平板支撑 3组×60秒" }
+        ]
+      },
+      {
+        title: "功能性训练（5分钟）",
+        items: [
+          { name: "敏捷梯正向快速步", detail: "3轮 | 脚步频率，直接迁移到网球/格斗步法", note: "", noteBlue: true, blueNote: "无敏捷梯：折返跑（5米×4来回，3轮，每轮休息30秒）" },
+          { name: "跳绳双摇", detail: "3组 × 30秒 | 爆发力+心肺+小腿弹性", note: "", noteRed: true, redNote: "退阶：普通跳绳 3组×45秒" }
+        ]
+      },
+      {
+        title: "冷拉伸（5分钟）",
+        items: [
+          { name: "胸肌门框拉伸", detail: "每侧30秒 | 目标：胸大肌", note: "" },
+          { name: "三头过头拉伸", detail: "每侧30秒 | 目标：肱三头肌", note: "" },
+          { name: "猫牛式", detail: "10次 | 目标：脊柱恢复", note: "" },
+          { name: "婴儿式", detail: "30秒 | 目标：下背放松", note: "" }
+        ]
+      }
+    ]
+  },
+  {
+    name: "周二", tag: "网球日", tagClass: "tag-tennis",
+    sections: [
+      {
+        title: "网球训练",
+        items: [
+          { name: "网球训练", detail: "正常打球，注意发球前充分热身肩袖", note: "网球日本身就是高强度有氧+下肢+敏捷训练，不再安排力量训练", noteRed: false }
+        ]
+      },
+      {
+        title: "可选：晨间核心唤醒",
+        items: [
+          { name: "卷腹 + 平板支撑", detail: "卷腹3组×20次 + 平板支撑2组×45秒", note: "早上做空腹核心，不影响晚上打球", noteRed: false }
+        ]
+      }
+    ]
+  },
+  {
+    name: "周三", tag: "拉日 + 肩袖 + 核心后侧", tagClass: "tag-pull",
+    sections: [
+      {
+        title: "热身（10分钟）",
+        items: [
+          { name: "划船机或弹力带划船", badge: "warmup", detail: "3分钟，激活背部", note: "" },
+          { name: "肩环绕 + 肩胛骨后缩", badge: "warmup", detail: "20次 | 激活肩袖和菱形肌", note: "" },
+          { name: "死虫式", badge: "warmup", detail: "每侧10次 | 激活核心抗伸展", note: "" },
+          { name: "悬垂吊杠", badge: "warmup", detail: "3组 × 20秒 | 激活握力和背阔肌", note: "" }
+        ]
+      },
+      {
+        title: "正式组（40分钟）",
+        items: [
+          { name: "A1 引体向上（正握/反握）", detail: "自重 | 5组 × 力竭 | 组间休息 90秒", note: "李小龙背阔肌王牌动作。正握练宽度，反握练背阔+二头", noteRed: true, redNote: "退阶：弹力带辅助引体 / 器械辅助引体" },
+          { name: "A2 杠铃划船", detail: "选择能做10次的重量 | 4组 × 8-12次 | 组间休息 90秒", note: "俯身45度，杠铃沿大腿拉向肚脐。核心收紧保护腰椎", noteRed: true, redNote: "退阶：哑铃单臂划船（轻重量）4组×12次" },
+          { name: "B1 单臂哑铃划船", detail: "单侧12-16kg | 3组 × 10-12次/侧 | 组间休息 75秒", note: "单手支撑，哑铃拉向髋部。纠正左右不平衡（网球是单侧运动）", noteRed: true, redNote: "退阶：跪姿单臂划船 3组×12次" },
+          { name: "B2 面拉（肩袖强化）", detail: "选择能做15次的重量 | 3组 × 15次 | 组间休息 60秒", note: "绳索拉向面部两侧，大拇指朝外。网球人必做！预防发球肩伤", noteRed: true, redNote: "退阶：弹力带面拉 3组×15次" },
+          { name: "C1 杠铃弯举", detail: "选择能做12次的重量 | 4组 × 10-12次 | 组间休息 60秒", note: "", noteRed: true, redNote: "退阶：哑铃弯举 4组×12次" },
+          { name: "C2 锤式弯举", detail: "选择能做12次的重量 | 3组 × 12次 | 组间休息 60秒", note: "强化前臂和握力（握拍更稳）", noteRed: true, redNote: "退阶：水瓶锤式弯举 3组×15次" },
+          { name: "D1 龙旗（Dragon Flag）", badge: "core", detail: "自重 | 3组 × 5-10次 | 组间休息 90秒", note: "李小龙招牌核心动作，极难。身体像木板一样抬起，仅肩部支撑", noteRed: true, redNote: "退阶：屈膝龙旗 3组×8次 → 仰卧举腿" },
+          { name: "D2 山羊挺身", badge: "core", detail: "自重或抱片 | 3组 × 15次 | 组间休息 60秒", note: "强化竖脊肌，保护腰椎", noteRed: true, redNote: "退阶：俯卧两头起 3组×12次" }
+        ]
+      },
+      {
+        title: "功能性训练（5分钟）",
+        items: [
+          { name: "农夫行走", detail: "双手各提20-24kg哑铃 | 3组 × 40秒 | 组间休息 60秒", note: "握力+核心+斜方肌，网球截击时身体更稳", noteRed: true, redNote: "退阶：提较轻哑铃或单壶铃 3组×30秒" },
+          { name: "毛巾悬垂", detail: "2组 × 力竭 | 目标：握力极限挑战", note: "用毛巾挂在单杠上，双手抓握毛巾悬垂", noteRed: true, redNote: "退阶：普通悬垂吊杠 2组×30秒" }
+        ]
+      },
+      {
+        title: "冷拉伸（5分钟）",
+        items: [
+          { name: "背阔肌拉伸（扶墙）", detail: "每侧30秒", note: "" },
+          { name: "二头拉伸（手臂后伸）", detail: "每侧30秒", note: "" },
+          { name: "猫牛式", detail: "10次", note: "" },
+          { name: "仰卧脊柱扭转", detail: "每侧30秒", note: "" }
+        ]
+      }
+    ]
+  },
+  {
+    name: "周四", tag: "腿 + 臀 + 爆发力", tagClass: "tag-leg",
+    sections: [
+      {
+        title: "热身（10分钟）",
+        items: [
+          { name: "动态拉伸", badge: "warmup", detail: " leg swings（前后/左右）每侧15次", note: "" },
+          { name: "空蹲", badge: "warmup", detail: "2组 × 15次 | 激活髋关节", note: "" },
+          { name: "臀桥", badge: "warmup", detail: "2组 × 15次 | 激活臀肌", note: "" },
+          { name: "高抬腿", badge: "warmup", detail: "30秒 | 激活髋屈肌", note: "" }
+        ]
+      },
+      {
+        title: "正式组（35分钟）",
+        items: [
+          { name: "A1 高脚杯深蹲", detail: "20-24kg哑铃 | 3组 × 10次 | 组间休息 90秒", note: "哑铃抱于胸前，下蹲至大腿平行地面。网球人腿部训练要控制量", noteRed: true, redNote: "退阶：徒手深蹲 3组×15次" },
+          { name: "A2 罗马尼亚硬拉", detail: "40-50kg杠铃或双哑铃 | 3组 × 10次 | 组间休息 90秒", note: "膝盖微屈，髋部后推，感受腘绳肌拉伸。预防网球膝盖前侧疼痛", noteRed: true, redNote: "退阶：单腿罗马尼亚硬拉（轻重量）3组×10次" },
+          { name: "B1 保加利亚分腿蹲", detail: "单侧10-12kg哑铃 | 2组 × 8次/腿 | 组间休息 75秒", note: "后脚放凳上，前腿下蹲至大腿平行。单腿稳定训练，对应网球急停急转", noteRed: true, redNote: "退阶：分腿蹲（后脚不垫高）2组×10次" },
+          { name: "B2 侧向滑步/侧蹲", detail: "3组 × 10次/侧 | 组间休息 60秒", note: "模拟底线横向移动。网球专项！强化侧向移动能力", noteRed: true, redNote: "退阶：原地侧蹲 3组×10次" },
+          { name: "C1 跳箱/深蹲跳", detail: "3组 × 6次 | 组间休息 2分钟", note: "全力爆发跳起，落地缓冲。提升发球起跳高度", noteRed: true, redNote: "退阶：原地纵跳 3组×8次" },
+          { name: "C2 提踵（站姿/坐姿）", detail: "4组 × 15-20次 | 组间休息 45秒", note: "站姿练腓肠肌，坐姿练比目鱼肌。网球大量踮脚", noteRed: true, redNote: "退阶：徒手站姿提踵 4组×20次" },
+          { name: "D1 臀桥", detail: "自重或加杠铃片 | 3组 × 15次 | 组间休息 45秒", note: "顶峰收缩2秒，感受臀部发力。臀肌是保护膝盖的关键", noteRed: true, redNote: "退阶：单腿臀桥 3组×12次" }
+        ]
+      },
+      {
+        title: "功能性训练（5分钟）",
+        items: [
+          { name: "波比跳", detail: "3组 × 8次 | 组间休息 60秒", note: "全身爆发力，落地缓冲保护膝盖", noteRed: true, redNote: "退阶：无俯卧撑波比跳 3组×10次" },
+          { name: "侧向弹跳", detail: "3组 × 10次/侧 | 组间休息 60秒", note: "模拟网球底线滑步后的急停起跳", noteRed: true, redNote: "退阶：原地小跳 3组×15次" }
+        ]
+      },
+      {
+        title: "冷拉伸（5分钟）",
+        items: [
+          { name: "股四头肌拉伸（站立拉脚）", detail: "每侧30秒", note: "" },
+          { name: "腘绳肌拉伸（前屈）", detail: "30秒", note: "" },
+          { name: "臀部拉伸（鸽子式）", detail: "每侧30秒", note: "" },
+          { name: "小腿拉伸（推墙）", detail: "每侧30秒", note: "" }
+        ]
+      }
+    ]
+  },
+  {
+    name: "周五", tag: "肩 + 前臂 + 核心抗旋", tagClass: "tag-shoulder",
+    sections: [
+      {
+        title: "热身（10分钟）",
+        items: [
+          { name: "肩环绕 + 弹力带外旋", badge: "warmup", detail: "各20次 | 激活肩袖", note: "" },
+          { name: "轻重量侧平举", badge: "warmup", detail: "2组 × 15次 | 激活三角肌", note: "" },
+          { name: "死虫式", badge: "warmup", detail: "每侧10次 | 激活核心", note: "" }
+        ]
+      },
+      {
+        title: "正式组（40分钟）",
+        items: [
+          { name: "A1 哑铃推举", detail: "单侧12-14kg | 4组 × 8-12次 | 组间休息 90秒", note: "肩前中束。不要过度后仰，核心收紧", noteRed: true, redNote: "退阶：坐姿哑铃推举 4组×10次" },
+          { name: "A2 哑铃侧平举", detail: "单侧6-8kg | 4组 × 12-15次 | 组间休息 60秒", note: "三角肌中束（宽肩）。肘部微屈，控制下放", noteRed: true, redNote: "退阶：弹力带侧平举 4组×15次" },
+          { name: "B1 俯身飞鸟", detail: "单侧4-6kg | 3组 × 15次 | 组间休息 60秒", note: "肩后束，改善体态。俯身至躯干接近平行地面", noteRed: true, redNote: "退阶：俯身弹力带飞鸟 3组×15次" },
+          { name: "B2 杠铃/哑铃耸肩", detail: "选择能做12次的重量 | 3组 × 12-15次 | 组间休息 60秒", note: "斜方肌上部。耸肩时耳朵靠近肩膀，顶峰收缩1秒", noteRed: true, redNote: "退阶：徒手耸肩（顶峰停留3秒）3组×15次" },
+          { name: "C1 腕弯举（正握+反握）", detail: "选择能做15次的重量 | 各3组 × 15次 | 组间休息 45秒", note: "前臂屈伸肌群。李小龙极重视前臂训练", noteRed: true, redNote: "退阶：徒手攥拳-张开快速重复 3组×30秒" },
+          { name: "C2 农夫行走", detail: "双手各提20-24kg | 3组 × 40秒 | 组间休息 60秒", note: "握力+斜方肌+核心", noteRed: true, redNote: "退阶：提较轻哑铃 3组×40秒" },
+          { name: "D1 俄罗斯转体（持药球/哑铃）", badge: "core", detail: "3组 × 30次 | 组间休息 45秒", note: "腹斜肌+核心抗旋。脚可离地增加难度", noteRed: true, redNote: "退阶：脚着地俄罗斯转体 3组×30次" },
+          { name: "D2 侧平板支撑", badge: "core", detail: "3组 × 45秒/侧 | 组间休息 45秒", note: "侧向移动稳定。髋部不要下沉", noteRed: true, redNote: "退阶：屈膝侧平板 3组×45秒" },
+          { name: "D3 平板支撑划船", badge: "core", detail: "3组 × 10次 | 组间休息 60秒", note: "核心抗旋。单手划船时身体不要旋转", noteRed: true, redNote: "退阶：普通平板支撑 3组×60秒" }
+        ]
+      },
+      {
+        title: "功能性训练（5分钟）",
+        items: [
+          { name: "药球侧抛", detail: "3组 × 8次/侧 | 组间休息 60秒", note: "模拟击球发力链，核心爆发力", noteRed: true, redNote: "退阶：徒手快速转体 3组×15次" },
+          { name: "跳绳双摇", detail: "3组 × 30秒", note: "", noteRed: true, redNote: "退阶：普通跳绳 3组×45秒" }
+        ]
+      },
+      {
+        title: "冷拉伸（5分钟）",
+        items: [
+          { name: "肩后束拉伸（胸前横臂）", detail: "每侧30秒", note: "" },
+          { name: "肩前束拉伸（身后拉臂）", detail: "每侧30秒", note: "" },
+          { name: "颈部拉伸", detail: "每侧20秒", note: "" },
+          { name: "婴儿式", detail: "30秒", note: "" }
+        ]
+      }
+    ]
+  },
+  {
+    name: "周六", tag: "全身流动 / 网球", tagClass: "tag-fullbody",
+    sections: [
+      {
+        title: "选项A：网球日",
+        items: [
+          { name: "网球训练", detail: "正常打球，周五练肩臂后已恢复24小时", note: "如果周五训练强度大，选择选项B", noteRed: false }
+        ]
+      },
+      {
+        title: "选项B：全身流动训练（30分钟）",
+        items: [
+          { name: "土耳其起立", detail: "3组 × 3次/侧 | 轻重量或徒手", note: "全身协调+肩稳定+核心。李小龙式功能性训练", noteRed: true, redNote: "退阶：分解练习，每步单独做" },
+          { name: "壶铃/哑铃摆动", detail: "3组 × 15次 | 组间休息 60秒", note: "髋爆发力。用髋部弹射，不是用手臂", noteRed: true, redNote: "退阶：徒手髋屈伸 3组×15次" },
+          { name: "俯卧撑转体", detail: "3组 × 10次 | 组间休息 60秒", note: "推+核心抗旋一体化", noteRed: true, redNote: "退阶：标准俯卧撑 3组×12次" },
+          { name: "死虫式", detail: "3组 × 10次/侧", note: "核心控制", noteRed: true, redNote: "退阶：屈膝死虫式 3组×10次" }
+        ]
+      },
+      {
+        title: "柔韧训练（15分钟）",
+        items: [
+          { name: "前屈拉伸", detail: "2分钟 | 腿后侧", note: "" },
+          { name: "开胯拉伸（青蛙趴）", detail: "2分钟 | 髋关节", note: "" },
+          { name: "肩部拉伸", detail: "2分钟", note: "" },
+          { name: "脊柱扭转", detail: "每侧2分钟", note: "" },
+          { name: "髋屈肌拉伸", detail: "每侧2分钟", note: "" }
+        ]
+      }
+    ]
+  },
+  {
+    name: "周日", tag: "完全休息", tagClass: "tag-rest",
+    isRest: true,
+    restContent: `<div class="rest-day"><div class="icon">🛌</div><h3>完全休息</h3><p>今天不训练。<br>肌肉在休息时生长，不是在你举铁时。<br><br>建议活动：<br>• 散步30分钟<br>• 轻度拉伸或瑜伽<br>• 冥想/呼吸训练10分钟<br><br>保证8小时睡眠。<br>今晚的恢复质量决定下周的训练质量。</p></div>`
+  }
+];
+
+function renderDay(dayIndex) {
+  const data = dayData[dayIndex];
+  const container = document.getElementById('dayContent');
+  if (data.isRest) {
+    container.innerHTML = data.restContent;
+    return;
+  }
+  let html = '';
+  data.sections.forEach((section) => {
+    html += `<div class="card">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-title"><span>${section.title}</span></div>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6.34317 7.75732L4.92896 9.17154L12 16.2426L19.0711 9.17157L17.6569 7.75735L12 13.4142L6.34317 7.75732Z" fill="currentColor"/></svg>
+      </div>
+      <div class="card-body"><div class="card-inner">`;
+    section.items.forEach((item) => {
+      const badgeHtml = item.badge ? `<span class="badge badge-${item.badge}">${item.badge === 'warmup' ? '热身' : item.badge === 'core' ? '核心' : item.badge === 'power' ? '爆发力' : ''}</span>` : '';
+      const noteHtml = item.note ? `<div class="ex-note">${item.note}</div>` : '';
+      const redNoteHtml = item.noteRed && item.redNote ? `<div class="ex-note red">${item.redNote}</div>` : '';
+      const blueNoteHtml = item.noteBlue && item.blueNote ? `<div class="ex-note blue">${item.blueNote}</div>` : '';
+      html += `<div class="ex-row">
+        <div class="ex-check" onclick="toggleCheck(this)"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="ex-info">
+          <div class="ex-name">${item.name} ${badgeHtml}</div>
+          <div class="ex-detail">${item.detail}</div>
+          ${noteHtml}${redNoteHtml}${blueNoteHtml}
+        </div>
+      </div>`;
+    });
+    html += `</div></div></div>`;
+  });
+  container.innerHTML = html;
+  setTimeout(() => {
+    const firstHeader = container.querySelector('.card-header');
+    if (firstHeader) toggleCard(firstHeader);
+  }, 50);
+}
+
+function showDay(index) {
+  renderDay(parseInt(index));
+}
+
+function renderSuperDay(dayIndex) {
+  const data = superDays[dayIndex];
+  const container = document.getElementById('superContent');
+  let html = '';
+  if (data.tip) {
+    html += `<div class="super-tip">💡 ${data.tip}</div>`;
+  }
+  html += `<div class="card"><div class="card-inner" style="padding:14px 18px;"><table class="super-table">
+    <thead><tr><th style="width:90px">时间</th><th>动作</th><th style="width:100px">组数×次数</th><th>备注</th></tr></thead><tbody>`;
+  data.items.forEach((item) => {
+    const timeStr = item.time ? `<span class="time-col">${item.time}</span>` : '';
+    const setsStr = item.sets ? `<span class="sets-col">${item.sets}</span>` : '';
+    const noteStr = item.note ? `<span class="note-col">${item.note}</span>` : '';
+    html += `<tr>
+      <td>${timeStr}</td>
+      <td><span class="action-col">${item.action}</span></td>
+      <td>${setsStr}</td>
+      <td>${noteStr}</td>
+    </tr>`;
+  });
+  html += `</tbody></table></div></div>`;
+  html += `<div style="margin-top:16px; text-align:center;">
+    <button id="superCheckBtn" onclick="toggleSuperCheck('${dayIndex}')" style="padding:12px 32px; border-radius:8px; border:2px solid var(--border); background:var(--surface); color:var(--text-secondary); font-size:14px; font-weight:600; cursor:pointer; transition:all 0.2s; font-family:inherit;">
+      ✓ 标记今日训练完成
+    </button>
+  </div>`;
+  container.innerHTML = html;
+  if (superChecked.has(dayIndex.toString())) {
+    const btn = document.getElementById('superCheckBtn');
+    if (btn) {
+      btn.style.background = 'rgba(232,197,71,0.15)';
+      btn.style.borderColor = 'var(--accent)';
+      btn.style.color = 'var(--accent)';
+      btn.innerHTML = '✓ 今日训练已完成';
+    }
+  }
+}
+
+const superChecked = new Set();
+
+function toggleSuperCheck(dayIndex) {
+  const btn = document.getElementById('superCheckBtn');
+  if (superChecked.has(dayIndex)) {
+    superChecked.delete(dayIndex);
+    btn.style.background = 'var(--surface)';
+    btn.style.borderColor = 'var(--border)';
+    btn.style.color = 'var(--text-secondary)';
+    btn.innerHTML = '✓ 标记今日训练完成';
+  } else {
+    superChecked.add(dayIndex);
+    btn.style.background = 'rgba(232,197,71,0.15)';
+    btn.style.borderColor = 'var(--accent)';
+    btn.style.color = 'var(--accent)';
+    btn.innerHTML = '✓ 今日训练已完成';
+  }
+}
+
+function showSuperDay(index) {
+  renderSuperDay(parseInt(index));
+}
+
+function toggleCard(header) {
+  const body = header.nextElementSibling;
+  const chevron = header.querySelector('.chevron');
+  body.classList.toggle('open');
+  chevron.classList.toggle('rotated');
+}
+
+function toggleCheck(btn) {
+  btn.classList.toggle('done');
+  const nameEl = btn.nextElementSibling.querySelector('.ex-name');
+  if (nameEl) nameEl.classList.toggle('done');
+}
+
+const today = new Date().getDay();
+const dayMap = { 0: 6, 1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5 };
+const todayIndex = dayMap[today];
+
+document.getElementById('daySelect').value = todayIndex;
+renderDay(todayIndex);
+document.getElementById('superSelect').value = todayIndex;
+renderSuperDay(todayIndex);
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  event.target.closest('.tab').classList.add('active');
+  document.getElementById('sec-' + tab).classList.add('active');
+}
+
+let restInterval, restSec = 0;
+function startRestTimer(sec) {
+  stopRestTimer();
+  restSec = sec;
+  updateRestDisplay();
+  document.getElementById('rest-label').textContent = '组间休息中...';
+  restInterval = setInterval(() => {
+    restSec--;
+    updateRestDisplay();
+    if (restSec <= 0) {
+      stopRestTimer();
+      document.getElementById('rest-label').textContent = '休息结束！开始下一组';
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 800;
+        gain.gain.value = 0.1;
+        osc.start();
+        osc.stop(ctx.currentTime + 0.2);
+      } catch(e) {}
+    }
+  }, 1000);
+}
+function stopRestTimer() {
+  clearInterval(restInterval);
+  document.getElementById('rest-label').textContent = '组间休息计时器';
+}
+function updateRestDisplay() {
+  const m = Math.floor(restSec / 60).toString().padStart(2, '0');
+  const s = (restSec % 60).toString().padStart(2, '0');
+  document.getElementById('rest-timer').textContent = m + ':' + s;
+}
+
+let swInterval, swSec = 0, swRunning = false;
+function startStopwatch() {
+  if (swRunning) return;
+  swRunning = true;
+  swInterval = setInterval(() => { swSec++; updateSwDisplay(); }, 1000);
+}
+function stopStopwatch() { swRunning = false; clearInterval(swInterval); }
+function resetStopwatch() { stopStopwatch(); swSec = 0; updateSwDisplay(); }
+function updateSwDisplay() {
+  const m = Math.floor(swSec / 60).toString().padStart(2, '0');
+  const s = (swSec % 60).toString().padStart(2, '0');
+  document.getElementById('sw-timer').textContent = m + ':' + s;
+}
+
+const trackedDays = new Set();
+function trackDay(day) {
+  const btn = document.getElementById('day-' + day);
+  if (trackedDays.has(day)) {
+    trackedDays.delete(day);
+    btn.style.background = 'var(--surface)';
+    btn.style.borderColor = 'var(--border)';
+    btn.style.color = 'var(--text-secondary)';
+  } else {
+    trackedDays.add(day);
+    btn.style.background = 'rgba(232,197,71,0.15)';
+    btn.style.borderColor = 'var(--accent)';
+    btn.style.color = 'var(--accent)';
+  }
+  const done = trackedDays.size;
+  document.getElementById('progress-text').textContent = done + ' / 7 天';
+  document.getElementById('progress-fill').style.width = (done / 7 * 100) + '%';
+}
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then((reg) => console.log('SW registered'))
+      .catch((err) => console.log('SW error', err));
+  }
+</script>
+</body>
+</html>
